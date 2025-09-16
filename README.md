@@ -42,8 +42,8 @@ This exam requires you to implement a series of operations involving API interac
 - Save all retrieved data to your database
 
 #### 2b. Data Update and Submission
-- Update investor data according to the requirements
-- Push the updated data back to {url}
+- Create a form enable user to create a new investor record, and push the new investor info [here](https://exam.cardinalalpha.com/api/investor)
+- Create a form enable user to update an existing investor, and push the updated data back to [here](https://exam.cardinalalpha.com/api/investor/{id})
 
 ### 3. Draw an Equity Curve
 - Using the data in {file}, generate an equity curve visualization
