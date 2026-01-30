@@ -12,8 +12,13 @@ class FundController extends Controller
 {
     public function index()
     {
-        $funds = Fund::all();
-        return view('fund.index',compact('funds'));
+        $funds = Fund::with(['investments'])->get()->map(function($fund) {
+            $fund->total_invested = $fund->investments->sum('capital_amount');
+            $fund->total_investors = $fund->investments->pluck('investor_id')->unique()->count();
+            return $fund;
+        });
+
+        return view('fund.index', compact('funds'));
     }
 
     public function syncFunds()

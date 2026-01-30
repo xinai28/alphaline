@@ -16,12 +16,20 @@
                         </div>
                     @endif
 
-                    <div class="flex justify-start mb-6">
+                    <!-- Sync Button + Create Button -->
+                    <div class="flex justify-start mb-6 gap-2">
+                        <!-- Sync Button -->
+                        <button id="sync-investors"
+                            class="inline-flex items-center px-5 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-150 font-bold">
+                            Sync Investors
+                        </button>
+
+                        <!-- Create Button -->
                         <a href="{{ route('investors.create') }}"
-                           class="inline-flex items-center px-5 py-2.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition duration-150 text-base font-medium shadow-sm">
+                        class="inline-flex items-center px-5 py-2.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition duration-150 text-base font-medium shadow-sm">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 4v16m8-8H4" />
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                             Create Investor
                         </a>
@@ -63,36 +71,65 @@
                         </thead>
                         <tbody>
                         @forelse($investors as $investor)
-                            <tr>
-                                <td class="border p-2">{{ $investor['name'] ?? '-' }}</td>
-                                <td class="border p-2">{{ $investor['email'] ?? '-' }}</td>
-                                <td class="border p-2">{{ $investor['contact_number'] ?? '-' }}</td>
-                                <td class="border p-2">
-                                    <div class="flex gap-2 justify-center">
-                                        <a href="{{ route('investors.investments', $investor['id']) }}"
-                                           class="inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition duration-150 text-base font-bold">
-                                            View Investments
-                                        </a>
+                        <tr>
+                            <td class="border p-2">{{ $investor['name'] ?? '-' }}</td>
+                            <td class="border p-2">{{ $investor['email'] ?? '-' }}</td>
+                            <td class="border p-2">{{ $investor['contact_number'] ?? '-' }}</td>
+                            <td class="border p-2">
+                                <div class="flex gap-2 justify-center">
+                                    <a href="{{ route('investors.investments', $investor['id']) }}"
+                                    class="inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 transition duration-150 text-base font-bold">
+                                        View Investments
+                                    </a>
 
-                                        <a href="{{ route('investors.edit', $investor['id']) }}"
-                                           class="inline-flex items-center px-3 py-1.5 bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition duration-150 text-base font-bold">
-                                            Edit
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                                    <a href="{{ route('investors.edit', $investor['id']) }}"
+                                    class="inline-flex items-center px-3 py-1.5 bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition duration-150 text-base font-bold">
+                                        Edit
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="4" class="border p-4 text-center text-gray-500">
-                                    No investors found.
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="4" class="border p-4 text-center text-gray-500">
+                                No investors found.
+                            </td>
+                        </tr>
                         @endforelse
+
                         </tbody>
                     </table>
-
+                    <div class="mt-4">
+                        {{ $investors->links() }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </x-app-layout>
+
+<script>
+document.getElementById('sync-investors').addEventListener('click', function() {
+    const btn = this;
+    btn.disabled = true;              // disable button during sync
+    btn.textContent = 'Syncing...';   // show loading text
+
+    fetch('{{ route("investors.sync") }}')
+        .then(response => response.json())
+        .then(data => {
+            // show success message
+            alert(`${data.message} (${data.count} investors)`);
+
+            // reload page to show updated investors
+            location.reload();
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Failed to sync investors.');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Sync Investors';
+        });
+});
+</script>

@@ -13,23 +13,20 @@ class InvestorController extends Controller
         $search = $request->input('search');
         $searchType = $request->input('search_type', 'name');
 
-        // Start query
         $query = Investor::query();
 
         // Apply filter if search is provided
         if (!empty($search)) {
-            // Only allow specific columns to prevent SQL injection
             if (in_array($searchType, ['name', 'email', 'contact_number'])) {
                 $query->where($searchType, 'like', "%{$search}%");
             }
         }
 
-        // Get filtered results
-        $investors = $query->get()->toArray();
+        // Pagination
+        $investors = $query->orderBy('name')->paginate(10)->withQueryString(); 
 
         return view('investor.index', compact('investors', 'search', 'searchType'));
     }
-
 
     public function create()
     {

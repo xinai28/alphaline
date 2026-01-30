@@ -16,7 +16,7 @@ Route::get('/instructions', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/sync-investors', [InvestorController::class, 'syncInvestors']);
+Route::get('/investors/sync', [InvestorController::class, 'syncInvestors'])->name('investors.sync');
 Route::get('/sync-funds', [FundController::class, 'syncFunds']);
 Route::get('/sync-investments', [InvestmentController::class, 'syncInvestments']);
 
