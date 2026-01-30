@@ -10,6 +10,14 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
+                    <!-- Sync Investments Button -->
+                    <div class="flex justify-start mb-4">
+                        <button id="sync-investments"
+                            class="inline-flex items-center px-5 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-150 font-bold">
+                            Sync Investments
+                        </button>
+                    </div>
+
                     <!-- Filters -->
                     <form method="GET" class="mb-4 flex flex-wrap gap-3 items-end">
                         <div>
@@ -113,3 +121,30 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+document.getElementById('sync-investments').addEventListener('click', function() {
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Syncing...';
+
+    fetch('{{ route("investments.sync") }}')
+        .then(response => response.json())
+        .then(data => {
+            if(data.message){
+                alert(`${data.message} (${data.count} investments)`);
+                location.reload(); // reload page to show updated data
+            } else {
+                alert('Sync completed but no data returned.');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Failed to sync investments.');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Sync Investments';
+        });
+});
+</script>

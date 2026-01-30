@@ -17,8 +17,8 @@ Route::get('/instructions', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/investors/sync', [InvestorController::class, 'syncInvestors'])->name('investors.sync');
-Route::get('/sync-funds', [FundController::class, 'syncFunds']);
-Route::get('/sync-investments', [InvestmentController::class, 'syncInvestments']);
+Route::get('/sync-funds', [FundController::class, 'syncFunds'])->name('funds.sync');
+Route::get('/sync-investments', [InvestmentController::class, 'syncInvestments'])->name('investments.sync');
 
 Route::get("investors", [\App\Http\Controllers\InvestorController::class, 'index'])->name('investors.index');
 Route::get('/investors/create', [InvestorController::class, 'create'])->name('investors.create');
