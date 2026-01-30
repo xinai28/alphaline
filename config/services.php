@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'cardinal' => [
+        'base_url' => env('CARDINAL_API_BASE'),
+        'token' => env('CARDINAL_API_TOKEN'),
+    ],
 ];
