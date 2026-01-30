@@ -10,6 +10,61 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
+                    <!-- Filters -->
+                    <form method="GET" class="mb-4 flex flex-wrap gap-3 items-end">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Investor</label>
+                            <select name="investor_id" class="border p-2 rounded">
+                                <option value="">All</option>
+                                @foreach($investors as $inv)
+                                    <option value="{{ $inv->id }}" {{ request('investor_id') == $inv->id ? 'selected' : '' }}>
+                                        {{ $inv->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Fund</label>
+                            <select name="fund_id" class="border p-2 rounded">
+                                <option value="">All</option>
+                                @foreach($funds as $fund)
+                                    <option value="{{ $fund->id }}" {{ request('fund_id') == $fund->id ? 'selected' : '' }}>
+                                        {{ $fund->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Status</label>
+                            <select name="status" class="border p-2 rounded">
+                                <option value="">All</option>
+                                <option value="Active" {{ request('status') == 'Active' ? 'selected' : '' }}>Active</option>
+                                <option value="Closed" {{ request('status') == 'Closed' ? 'selected' : '' }}>Closed</option>
+                                <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">From</label>
+                            <input type="date" name="start_date_from" value="{{ request('start_date_from') }}" class="border p-2 rounded">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1">To</label>
+                            <input type="date" name="start_date_to" value="{{ request('start_date_to') }}" class="border p-2 rounded">
+                        </div>
+
+                        <button type="submit" class="px-4 py-2 bg-indigo-500 text-white font-bold rounded hover:bg-indigo-600 transition">
+                            Filter
+                        </button>
+                        <a href="{{ route('investments.index') }}" class="px-4 py-2 bg-gray-200 font-bold rounded hover:bg-gray-300 transition">
+                            Clear
+                        </a>
+                    </form>
+
+                    <!-- Investments Table -->
                     <table class="w-full border">
                         <thead>
                             <tr class="bg-gray-100">
@@ -28,8 +83,15 @@
                                     <td class="border p-2">{{ $inv->investor->name ?? 'N/A' }}</td>
                                     <td class="border p-2">{{ $inv->fund->name ?? 'N/A' }}</td>
                                     <td class="border p-2">RM {{ number_format($inv->capital_amount ?? 0, 2) }}</td>
-                                    <td class="border p-2">{{ ucfirst($inv->status) }}</td>
-                                    <td class="border p-2">{{ $inv->start_date }}</td>
+                                    <td class="border p-2">
+                                        <span class="px-2 py-1 rounded font-bold
+                                            {{ strtolower($inv->status) == 'active' ? 'bg-green-100 text-green-800' : '' }}
+                                            {{ strtolower($inv->status) == 'closed' ? 'bg-gray-100 text-gray-600' : '' }}
+                                            {{ strtolower($inv->status) == 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}">
+                                            {{ ucfirst($inv->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="border p-2">{{ $inv->start_date ? \Carbon\Carbon::parse($inv->start_date)->format('Y-m-d') : '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -40,6 +102,11 @@
                             @endforelse
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <div class="mt-4">
+                        {{ $investments->links() }}
+                    </div>
 
                 </div>
             </div>

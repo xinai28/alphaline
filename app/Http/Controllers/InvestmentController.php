@@ -11,12 +11,39 @@ use Carbon\Carbon;
 
 class InvestmentController extends Controller
 {
-    public function index()
+   public function index(Request $request)
     {
-        $investments = Investment::with(['investor', 'fund'])->get();
-        return view('investment.index', compact('investments'));
-    }
+        $query = Investment::with(['investor', 'fund']);
 
+        // Filtering
+        if ($request->filled('investor_id')) {
+            $query->where('investor_id', $request->investor_id);
+        }
+
+        if ($request->filled('fund_id')) {
+            $query->where('fund_id', $request->fund_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('start_date_from')) {
+            $query->where('start_date', '>=', $request->start_date_from);
+        }
+
+        if ($request->filled('start_date_to')) {
+            $query->where('start_date', '<=', $request->start_date_to);
+        }
+
+        // Pagination
+        $investments = $query->orderBy('start_date', 'desc')->paginate(10)->withQueryString();
+
+        $investors = Investor::all();
+        $funds = Fund::all();
+
+        return view('investment.index', compact('investments', 'investors', 'funds'));
+    }
 
    public function syncInvestments()
     {
