@@ -14,24 +14,30 @@
                         <thead>
                             <tr class="bg-gray-100">
                                 <th class="border p-2">UID</th>
-                                <th class="border p-2">Investor ID</th>
-                                <th class="border p-2">Fund ID</th>
-                                <th class="border p-2">Capital Amount</th>
+                                <th class="border p-2">Investor</th>
+                                <th class="border p-2">Fund</th>
+                                <th class="border p-2">Capital Amount (RM)</th>
                                 <th class="border p-2">Status</th>
                                 <th class="border p-2">Start Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($investments as $inv)
+                            @forelse($investments as $inv)
                                 <tr>
                                     <td class="border p-2">{{ $inv->uid }}</td>
-                                    <td class="border p-2">{{ $inv->investor_id }}</td>
-                                    <td class="border p-2">{{ $inv->fund_id }}</td>
-                                    <td class="border p-2">{{ $inv->capital_amount }}</td>
-                                    <td class="border p-2">{{ $inv->status }}</td>
+                                    <td class="border p-2">{{ $inv->investor->name ?? 'N/A' }}</td>
+                                    <td class="border p-2">{{ $inv->fund->name ?? 'N/A' }}</td>
+                                    <td class="border p-2">RM {{ number_format($inv->capital_amount ?? 0, 2) }}</td>
+                                    <td class="border p-2">{{ ucfirst($inv->status) }}</td>
                                     <td class="border p-2">{{ $inv->start_date }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="border p-4 text-center text-gray-500">
+                                        No investments found.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
 

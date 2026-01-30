@@ -10,5 +10,10 @@ class Fund extends Model
         'api_id',
         'name',
     ];
+
+    public function investments()
+    {
+        return $this->hasMany(Investment::class);
+    }
 }
 

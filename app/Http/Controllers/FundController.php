@@ -12,7 +12,8 @@ class FundController extends Controller
 {
     public function index()
     {
-        return view('fund.index');
+        $funds = Fund::all();
+        return view('fund.index',compact('funds'));
     }
 
     public function syncFunds()

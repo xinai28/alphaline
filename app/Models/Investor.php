@@ -12,4 +12,10 @@ class Investor extends Model
         'email',
         'contact_number',
     ];
+
+    // One investor can have many investments
+    public function investments()
+    {
+        return $this->hasMany(Investment::class);
+    }
 }

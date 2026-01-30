@@ -25,6 +25,9 @@ Route::get('/investors/create', [InvestorController::class, 'create'])->name('in
 Route::post('/investors', [InvestorController::class, 'store'])->name('investors.store');
 Route::get('/investors/{investor}/edit', [InvestorController::class, 'edit'])->name('investors.edit');
 Route::put('/investors/{investor}', [InvestorController::class, 'update'])->name('investors.update');
+Route::get('/investors/{investor}/investments', [InvestorController::class, 'showInvestments'])
+     ->name('investors.investments');
+
 
 Route::get("funds", [FundController::class, 'index'])->name('funds.index');;
 Route::get("investments", [InvestmentController::class, 'index'])->name('investments.index');

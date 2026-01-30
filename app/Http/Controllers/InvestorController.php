@@ -28,13 +28,24 @@ class InvestorController extends Controller
             'contact_number' => 'nullable|string|max:20',
         ]);
 
-        $data['api_id'] = null;
+        //$data['api_id'] = null;
 
+        // Create locally
         $investor = Investor::create($data);
 
+        // Push to external API
+        $response = Http::withToken(config('services.cardinal.token'))
+            ->post(config('services.cardinal.base_url') . '/investor', $data);
+
+        if ($response->successful()) {
+            // Save api_id returned by API
+            $investor->update(['api_id' => $response->json('id')]);
+        }
+
         return redirect()->route('investors.index')
-            ->with('success', 'Investor created successfully.');
+            ->with('success', 'Investor created successfully and pushed to API.');
     }
+
 
     public function edit(Investor $investor)
     {
@@ -60,6 +71,19 @@ class InvestorController extends Controller
 
         return redirect()->route('investors.index')
             ->with('success', 'Investor updated successfully.');
+    }
+    
+    public function showInvestments(Investor $investor)
+    {
+        $investments = $investor->investments()->with('fund')->get();
+
+        $totalInvested = $investments->sum('capital_amount');
+
+        return view('investor.investments', compact(
+            'investor',
+            'investments',
+            'totalInvested'
+        ));
     }
 
     public function syncInvestors()

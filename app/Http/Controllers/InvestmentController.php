@@ -13,7 +13,7 @@ class InvestmentController extends Controller
 {
     public function index()
     {
-        $investments = Investment::all(); // fetch all investments from DB
+        $investments = Investment::with(['investor', 'fund'])->get();
         return view('investment.index', compact('investments'));
     }
 
