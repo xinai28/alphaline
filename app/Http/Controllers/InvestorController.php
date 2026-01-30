@@ -8,10 +8,26 @@ use App\Models\Investor;
 
 class InvestorController extends Controller
 {
-   public function index()
+    public function index(Request $request)
     {
-        $investors = Investor::all(); // fetch all investors from DB
-        return view('investor.index', compact('investors'));
+        $search = $request->input('search');
+        $searchType = $request->input('search_type', 'name');
+
+        // Start query
+        $query = Investor::query();
+
+        // Apply filter if search is provided
+        if (!empty($search)) {
+            // Only allow specific columns to prevent SQL injection
+            if (in_array($searchType, ['name', 'email', 'contact_number'])) {
+                $query->where($searchType, 'like', "%{$search}%");
+            }
+        }
+
+        // Get filtered results
+        $investors = $query->get()->toArray();
+
+        return view('investor.index', compact('investors', 'search', 'searchType'));
     }
 
 
@@ -28,24 +44,18 @@ class InvestorController extends Controller
             'contact_number' => 'nullable|string|max:20',
         ]);
 
-        //$data['api_id'] = null;
-
-        // Create locally
         $investor = Investor::create($data);
 
-        // Push to external API
         $response = Http::withToken(config('services.cardinal.token'))
             ->post(config('services.cardinal.base_url') . '/investor', $data);
 
         if ($response->successful()) {
-            // Save api_id returned by API
             $investor->update(['api_id' => $response->json('id')]);
         }
 
         return redirect()->route('investors.index')
             ->with('success', 'Investor created successfully and pushed to API.');
     }
-
 
     public function edit(Investor $investor)
     {
@@ -60,10 +70,8 @@ class InvestorController extends Controller
             'contact_number' => 'nullable|string|max:20',
         ]);
 
-        // Update locally
         $investor->update($data);
 
-        // Push updated data to external API
         if ($investor->api_id) {
             Http::withToken(config('services.cardinal.token'))
                 ->put(config('services.cardinal.base_url') . '/investor/' . $investor->api_id, $data);
@@ -72,18 +80,13 @@ class InvestorController extends Controller
         return redirect()->route('investors.index')
             ->with('success', 'Investor updated successfully.');
     }
-    
+
     public function showInvestments(Investor $investor)
     {
         $investments = $investor->investments()->with('fund')->get();
-
         $totalInvested = $investments->sum('capital_amount');
 
-        return view('investor.investments', compact(
-            'investor',
-            'investments',
-            'totalInvested'
-        ));
+        return view('investor.investments', compact('investor', 'investments', 'totalInvested'));
     }
 
     public function syncInvestors()
@@ -91,15 +94,15 @@ class InvestorController extends Controller
         $response = Http::withToken(config('services.cardinal.token'))
             ->get(config('services.cardinal.base_url') . '/investor');
 
-        $investors = $response->json()['data'];
+        $investors = $response->json('data');
 
-        foreach ($investors as $investor) {
+        foreach ($investors as $inv) {
             Investor::updateOrCreate(
-                ['api_id' => $investor['id']], // match condition
+                ['api_id' => $inv['id']],
                 [
-                    'name' => $investor['name'],
-                    'email' => $investor['email'],
-                    'contact_number' => $investor['contact_number'] ?? null,
+                    'name' => $inv['name'],
+                    'email' => $inv['email'],
+                    'contact_number' => $inv['contact_number'] ?? null,
                 ]
             );
         }
